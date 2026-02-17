@@ -260,8 +260,13 @@ public class PublicTools {
             listView.setAdapter(adapter);
             listView.setOnItemClickListener((parent, view, position, id) -> {
               String app = remoteAppList.get(position);
-              if (app.contains("@")) app = app.split("@")[1];
-              itemAddDeviceBinding.specifiedApp.setText(app);
+              if (app.contains("@")) {
+                String[] parts = app.split("@");
+                itemAddDeviceBinding.name.setText(parts[0]);
+                itemAddDeviceBinding.specifiedApp.setText(parts[1]);
+              } else {
+                itemAddDeviceBinding.specifiedApp.setText(app);
+              }
               appListDialog.dismiss();
             });
             layout.addView(listView);
@@ -304,9 +309,14 @@ public class PublicTools {
           Objects.requireNonNull(Adb.adbMap.get(device.uuid)).close();
         }
       }
-      device.name = String.valueOf(itemAddDeviceBinding.name.getText());
+      String specifiedAppText = String.valueOf(itemAddDeviceBinding.specifiedApp.getText());
+      if (specifiedAppText.isEmpty()) {
+        device.name = context.getString(R.string.start_display_mirroring);
+      } else {
+        device.name = String.valueOf(itemAddDeviceBinding.name.getText());
+      }
       device.address = String.valueOf(itemAddDeviceBinding.address.getText());
-      device.specified_app = String.valueOf(itemAddDeviceBinding.specifiedApp.getText());
+      device.specified_app = specifiedAppText;
       if (AppData.dbHelper.getByUUID(device.uuid) != null) AppData.dbHelper.update(device);
       else AppData.dbHelper.insert(device);
       deviceListAdapter.update();
