@@ -145,6 +145,12 @@
   <string name="add_device_scan_specify_app_finish_error">扫描出错，请检查设备是否可连接</string>
   <string name="add_device_option">高级选项</string>
   <string name="add_device_button">确认</string>
+  <string name="add_device_app_type_user">用户应用</string>
+  <string name="add_device_app_type_system">系统应用</string>
+  <string name="add_device_app_type_all">全部应用</string>
+  <string name="add_device_copy_device">复制设备</string>
+  <string name="add_device_copy_device_success">设备复制成功</string>
+  <string name="add_device_app_search_hint">搜索应用名称</string>
 
   <!-- 设备设置模块 -->
   <string name="set_device_title">干什么◔ ‸◔?</string>

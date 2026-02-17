@@ -71,6 +71,44 @@
     android:textColor="@color/onCardBackground"
     android:textSize="@dimen/smallFont" />
 
+  <RadioGroup
+    android:id="@+id/app_type_group"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <RadioButton
+      android:id="@+id/app_type_user"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:buttonTint="@color/onCardBackground"
+      android:checked="true"
+      android:text="@string/add_device_app_type_user"
+      android:textColor="@color/onCardBackground"
+      android:textSize="@dimen/smallFont" />
+
+    <RadioButton
+      android:id="@+id/app_type_system"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="10dp"
+      android:buttonTint="@color/onCardBackground"
+      android:text="@string/add_device_app_type_system"
+      android:textColor="@color/onCardBackground"
+      android:textSize="@dimen/smallFont" />
+
+    <RadioButton
+      android:id="@+id/app_type_all"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="10dp"
+      android:buttonTint="@color/onCardBackground"
+      android:text="@string/add_device_app_type_all"
+      android:textColor="@color/onCardBackground"
+      android:textSize="@dimen/smallFont" />
+
+  </RadioGroup>
+
   <GridLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -119,6 +157,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:visibility="gone" />
+
+  <Button
+    android:id="@+id/copy_device"
+    android:layout_width="200dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/background_cron"
+    android:backgroundTint="@color/button"
+    android:gravity="center"
+    android:text="@string/add_device_copy_device"
+    android:textColor="@color/onButton"
+    android:textSize="@dimen/smallFont" />
 
   <Button
     android:id="@+id/ok"

@@ -429,14 +429,14 @@ public class Client {
     }).start();
   }
 
-  public static ArrayList<String> getAppList(Device device, UsbDevice usbDevice) {
+  public static ArrayList<String> getAppList(Device device, UsbDevice usbDevice, int appType) {
     try {
       if (Adb.adbMap.get(device.uuid) == null) {
         if (device.isLinkDevice()) Adb.adbMap.put(device.uuid, new Adb(device.uuid, usbDevice, AppData.keyPair));
         else Adb.adbMap.put(device.uuid, new Adb(device.uuid, device.address, AppData.keyPair));
       }
       ArrayList<String> appList = new ArrayList<>();
-      String output = Adb.getStringResponseFromServer(device, "getAllAppInfo", "app_type=1");
+      String output = Adb.getStringResponseFromServer(device, "getAllAppInfo", "app_type=" + appType);
       String[] allAppInfo = output.split("<!@n@!>");
       for (String info : allAppInfo) {
         String[] appInfo = info.split("<!@r@!>");

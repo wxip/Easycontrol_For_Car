@@ -227,27 +227,72 @@ public class PublicTools {
       }).start();
     });
     itemAddDeviceBinding.scanRemoteAppList.setOnClickListener(v -> {
-      UsbDevice usbDevice = DeviceListAdapter.linkDevices.get(device.uuid);
-      if (device.isLinkDevice() && usbDevice == null) return;
+      final UsbDevice usbDeviceFinal = DeviceListAdapter.linkDevices.get(device.uuid);
+      if (device.isLinkDevice() && usbDeviceFinal == null) return;
       if (device.type == Device.TYPE_NORMAL && !String.valueOf(itemAddDeviceBinding.address.getText()).isEmpty()) device.address = String.valueOf(itemAddDeviceBinding.address.getText());
+      final int appTypeFinal;
+      if (itemAddDeviceBinding.appTypeSystem.isChecked()) appTypeFinal = 2;
+      else if (itemAddDeviceBinding.appTypeAll.isChecked()) appTypeFinal = 0;
+      else appTypeFinal = 1;
       itemAddDeviceBinding.specifiedAppTitle.setText(context.getString(R.string.add_device_scanning));
       itemAddDeviceBinding.scanRemoteAppList.setEnabled(false);
       new Thread(() -> {
-        ArrayList<String> remoteAppList = Client.getAppList(device, device.isLinkDevice() ? usbDevice : null);
+        final ArrayList<String> remoteAppList = Client.getAppList(device, device.isLinkDevice() ? usbDeviceFinal : null, appTypeFinal);
         AppData.uiHandler.post(() -> {
-          if (remoteAppList.isEmpty()) Toast.makeText(context, context.getString(R.string.add_device_scan_specify_app_finish_error), Toast.LENGTH_SHORT).show();
-          else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(context.getString(R.string.add_device_scan_finish));
-            builder.setItems(remoteAppList.toArray(new String[0]), (dialog1, which) -> {
-              String app = remoteAppList.get(which);
+          if (remoteAppList.isEmpty()) {
+            Toast.makeText(context, context.getString(R.string.add_device_scan_specify_app_finish_error), Toast.LENGTH_SHORT).show();
+            itemAddDeviceBinding.specifiedAppTitle.setText(context.getString(R.string.add_device_specify_app));
+            itemAddDeviceBinding.scanRemoteAppList.setEnabled(true);
+          } else {
+            Dialog appListDialog = new Dialog(context);
+            appListDialog.setTitle(context.getString(R.string.add_device_scan_finish));
+            appListDialog.setCancelable(true);
+            LinearLayout layout = new LinearLayout(context);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(40, 20, 40, 20);
+            EditText searchEditText = new EditText(context);
+            searchEditText.setHint(context.getString(R.string.add_device_app_search_hint));
+            searchEditText.setTextColor(context.getResources().getColor(R.color.onCardBackground));
+            searchEditText.setHintTextColor(context.getResources().getColor(R.color.onCardBackgroundSecond));
+            layout.addView(searchEditText);
+            ListView listView = new ListView(context);
+            final ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, remoteAppList);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener((parent, view, position, id) -> {
+              String app = remoteAppList.get(position);
               if (app.contains("@")) app = app.split("@")[1];
               itemAddDeviceBinding.specifiedApp.setText(app);
+              appListDialog.dismiss();
             });
-            builder.show();
+            layout.addView(listView);
+            appListDialog.setContentView(layout);
+            appListDialog.setOnDismissListener(dialogInterface -> {
+              itemAddDeviceBinding.specifiedAppTitle.setText(context.getString(R.string.add_device_specify_app));
+              itemAddDeviceBinding.scanRemoteAppList.setEnabled(true);
+            });
+            searchEditText.addTextChangedListener(new android.text.TextWatcher() {
+              @Override
+              public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+              @Override
+              public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ArrayList<String> filteredList = new ArrayList<>();
+                String searchText = s.toString().toLowerCase();
+                for (String app : remoteAppList) {
+                  if (app.toLowerCase().contains(searchText)) {
+                    filteredList.add(app);
+                  }
+                }
+                adapter.clear();
+                adapter.addAll(filteredList);
+                adapter.notifyDataSetChanged();
+              }
+
+              @Override
+              public void afterTextChanged(android.text.Editable s) {}
+            });
+            appListDialog.show();
           }
-          itemAddDeviceBinding.specifiedAppTitle.setText(context.getString(R.string.add_device_specify_app));
-          itemAddDeviceBinding.scanRemoteAppList.setEnabled(true);
         });
       }).start();
     });
@@ -266,6 +311,13 @@ public class PublicTools {
       else AppData.dbHelper.insert(device);
       deviceListAdapter.update();
       dialog.cancel();
+    });
+    itemAddDeviceBinding.copyDevice.setOnClickListener(v -> {
+      Device newDevice = Device.getDefaultDevice(UUID.randomUUID().toString(), device.type);
+      Device.copyDevice(device, newDevice);
+      AppData.dbHelper.insert(newDevice);
+      deviceListAdapter.update();
+      Toast.makeText(context, context.getString(R.string.add_device_copy_device_success), Toast.LENGTH_SHORT).show();
     });
     return dialog;
   }
