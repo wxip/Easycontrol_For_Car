@@ -6,6 +6,35 @@ android {
   namespace 'top.eiyooooo.easycontrol.app'
   compileSdk 35
 
+  def signingPropsFile = file("${project.rootDir}/../docs/signing.properties")
+  def keystorePathRelative = "release.keystore"
+  def keystorePassword = "easYc0ntr0l2024"
+  def keystoreAlias = "easycontrol"
+  def keystoreKeyPassword = "easYc0ntr0l2024"
+  def hasSigningConfig = signingPropsFile.exists()
+
+  if (hasSigningConfig) {
+    def props = new Properties()
+    signingPropsFile.withInputStream { props.load(it) }
+    keystorePathRelative = props['KEYSTORE_PATH'] ?: keystorePathRelative
+    keystorePassword = props['KEYSTORE_PASSWORD'] ?: keystorePassword
+    keystoreAlias = props['KEY_ALIAS'] ?: keystoreAlias
+    keystoreKeyPassword = props['KEY_PASSWORD'] ?: keystoreKeyPassword
+  }
+
+  def getKeystoreFile = { -> file("${project.rootDir}/../${keystorePathRelative}") }
+
+  signingConfigs {
+    release {
+      if (hasSigningConfig) {
+        storeFile getKeystoreFile()
+        storePassword keystorePassword
+        keyAlias keystoreAlias
+        keyPassword keystoreKeyPassword
+      }
+    }
+  }
+
   defaultConfig {
     applicationId 'top.eiyooooo.easycontrol.app'
     minSdk 21
@@ -17,8 +46,33 @@ android {
     }
   }
 
+  flavorDimensions "multiApp"
+
+  productFlavors {
+    official {
+      dimension "multiApp"
+      applicationIdSuffix ""
+      resValue "string", "app_name", "EasyControl"
+    }
+    x1 {
+      dimension "multiApp"
+      applicationIdSuffix ".x1"
+      resValue "string", "app_name", "EasyControl X1"
+    }
+    x2 {
+      dimension "multiApp"
+      applicationIdSuffix ".x2"
+      resValue "string", "app_name", "EasyControl X2"
+    }
+    x3 {
+      dimension "multiApp"
+      applicationIdSuffix ".x3"
+      resValue "string", "app_name", "EasyControl X3"
+    }
+  }
+
   viewBinding {
-    enabled = true
+    enabled true
   }
 
   buildTypes {
@@ -32,6 +86,9 @@ android {
       minifyEnabled true
       shrinkResources true
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      if (hasSigningConfig) {
+        signingConfig signingConfigs.release
+      }
     }
   }
 
@@ -50,4 +107,107 @@ dependencies {
   implementation 'com.github.MuntashirAkon:libadb-android:3.0.0'
   implementation 'com.github.MuntashirAkon:sun-security-android:1.1'
   implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
+}
+
+def getSigningPropsFile() {
+  return file("${project.rootDir}/../docs/signing.properties")
+}
+
+def getKeystoreFile() {
+  def propsFile = getSigningPropsFile()
+  def keystorePath = "release.keystore"
+  if (propsFile.exists()) {
+    def props = new Properties()
+    propsFile.withInputStream { props.load(it) }
+    keystorePath = props['KEYSTORE_PATH'] ?: keystorePath
+  }
+  return file("${project.rootDir}/../${keystorePath}")
+}
+
+task generateKeystore {
+  description = "生成签名密钥库"
+  group = "build"
+
+  doLast {
+    def keystoreFile = getKeystoreFile()
+    if (!keystoreFile.exists()) {
+      println "生成签名密钥库: ${keystoreFile.absolutePath}"
+      keystoreFile.parentFile.mkdirs()
+
+      def cmd = "keytool -genkeypair -v -storetype PKCS12 -keystore \"${keystoreFile.absolutePath}\" -alias easycontrol -keyalg RSA -keysize 2048 -validity 10000 -storepass easYc0ntr0l2024 -keypass easYc0ntr0l2024 -dname \"CN=EasyControl, OU=EasyControl, O=EasyControl, L=Unknown, ST=Unknown, C=CN\""
+      def process = cmd.execute()
+      process.waitFor()
+      if (process.exitValue() != 0) {
+        println "密钥库生成失败: ${process.err.text}"
+      } else {
+        println "密钥库生成成功"
+      }
+    } else {
+      println "密钥库已存在: ${keystoreFile.absolutePath}"
+    }
+  }
+}
+
+task buildMultiApk {
+  description = "一键构建多开APK（带签名）"
+  group = "build"
+
+  dependsOn generateKeystore
+
+  doLast {
+    println "开始构建多开APK..."
+  }
+}
+
+afterEvaluate {
+  def flavors = ["official", "x1", "x2", "x3"]
+  def appNames = ["EasyControl", "EasyControl_X1", "EasyControl_X2", "EasyControl_X3"]
+
+  task assembleAllRelease {
+    description = "构建所有flavor的Release版本"
+    group = "build"
+    dependsOn = [
+      "assembleOfficialRelease",
+      "assembleX1Release",
+      "assembleX2Release",
+      "assembleX3Release"
+    ]
+  }
+
+  task copyApksToOutput {
+    description = "复制APK到output目录"
+    group = "build"
+
+    doLast {
+      def outputDir = new File("${project.rootDir}/../output")
+      if (!outputDir.exists()) {
+        outputDir.mkdirs()
+      }
+
+      flavors.eachWithIndex { flavor, index ->
+        def flavorLower = flavor.toLowerCase()
+        def sourceApk = new File("${project.buildDir}/outputs/apk/${flavorLower}/release/app-${flavorLower}-release.apk")
+        def destApk = new File(outputDir, "app-${appNames[index]}.apk")
+
+        if (sourceApk.exists()) {
+          ant.copy(file: sourceApk, tofile: destApk)
+          println "复制APK: ${destApk.name}"
+        }
+      }
+
+      println ""
+      println "========================================"
+      println "  打包完成!"
+      println "========================================"
+      println ""
+      outputDir.listFiles().each { file ->
+        if (file.name.endsWith('.apk')) {
+          def size = file.length() / 1024 / 1024
+          println "  - ${file.name} (${String.format("%.2f", size)} MB)"
+        }
+      }
+      println ""
+      println "输出目录: ${outputDir.absolutePath}"
+    }
+  }
 }

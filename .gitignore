@@ -11,3 +11,4 @@ easycontrol/app/src/main/res/raw/easycontrol_server.jar
 
 easycontrol/server/build
 easycontrol/server/.gradle
+output
