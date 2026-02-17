@@ -34,9 +34,31 @@
     tools:ignore="HardcodedText" />
 
   <ImageButton
+    android:id="@+id/device_move_up"
+    android:layout_width="36dp"
+    android:layout_height="36dp"
+    android:background="@drawable/background_cron_stroke"
+    android:src="@drawable/chevron_up"
+    android:scaleType="centerInside"
+    android:padding="6dp"
+    android:contentDescription="@string/move_up" />
+
+  <ImageButton
+    android:id="@+id/device_move_down"
+    android:layout_width="36dp"
+    android:layout_height="36dp"
+    android:layout_marginStart="6dp"
+    android:background="@drawable/background_cron_stroke"
+    android:src="@drawable/chevron_down"
+    android:scaleType="centerInside"
+    android:padding="6dp"
+    android:contentDescription="@string/move_down" />
+
+  <ImageButton
     android:id="@+id/device_start"
     android:layout_width="40dp"
     android:layout_height="40dp"
+    android:layout_marginStart="6dp"
     android:background="@drawable/background_cron_stroke"
     android:backgroundTint="@color/alert"
     android:src="@drawable/play"

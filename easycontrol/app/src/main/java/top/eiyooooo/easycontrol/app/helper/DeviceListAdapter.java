@@ -91,6 +91,23 @@ public class DeviceListAdapter extends BaseAdapter {
     devicesItemBinding.deviceName.setText(device.name);
     // 启动按钮点击事件
     devicesItemBinding.deviceStart.setOnClickListener(v -> startDevice(device, device.specified_app != null && !device.specified_app.isEmpty() ? 1 : 0));
+    // 列表项点击事件
+    devicesItemBinding.getRoot().setOnClickListener(v -> startDevice(device, device.specified_app != null && !device.specified_app.isEmpty() ? 1 : 0));
+    // 计算同类设备的起始位置
+    boolean isLinkDevice = device.isLinkDevice();
+    int linkCount = 0;
+    for (Device d : devicesList) {
+      if (d.isLinkDevice()) linkCount++;
+    }
+    int startIndex = isLinkDevice ? 0 : linkCount;
+    int endIndex = isLinkDevice ? linkCount - 1 : devicesList.size() - 1;
+    // 根据位置显示/隐藏移动按钮
+    devicesItemBinding.deviceMoveUp.setVisibility(position > startIndex ? View.VISIBLE : View.INVISIBLE);
+    devicesItemBinding.deviceMoveDown.setVisibility(position < endIndex ? View.VISIBLE : View.INVISIBLE);
+    // 向上移动按钮点击事件
+    devicesItemBinding.deviceMoveUp.setOnClickListener(v -> moveDevice(position, -1));
+    // 向下移动按钮点击事件
+    devicesItemBinding.deviceMoveDown.setOnClickListener(v -> moveDevice(position, 1));
     // 长按事件
     devicesItemBinding.getRoot().setOnLongClickListener(v -> {
       onLongClickCard(device);
@@ -218,6 +235,8 @@ public class DeviceListAdapter extends BaseAdapter {
       if (device.isLinkDevice() && linkDevices.containsKey(device.uuid)) tmp1.add(device);
       else if (device.isNormalDevice()) tmp2.add(device);
     }
+    tmp1.sort((d1, d2) -> Integer.compare(d1.order, d2.order));
+    tmp2.sort((d1, d2) -> Integer.compare(d1.order, d2.order));
     devicesList.clear();
     devicesList.addAll(tmp1);
     devicesList.addAll(tmp2);
@@ -257,6 +276,27 @@ public class DeviceListAdapter extends BaseAdapter {
   }
 
   public final void update() {
+    queryDevices();
+    notifyDataSetChanged();
+  }
+
+  public void moveDevice(int position, int direction) {
+    Device currentDevice = devicesList.get(position);
+    boolean isLinkDevice = currentDevice.isLinkDevice();
+    int linkCount = 0;
+    for (Device d : devicesList) {
+      if (d.isLinkDevice()) linkCount++;
+    }
+    int startIndex = isLinkDevice ? 0 : linkCount;
+    int endIndex = isLinkDevice ? linkCount - 1 : devicesList.size() - 1;
+    int newPosition = position + direction;
+    if (newPosition < startIndex || newPosition > endIndex) return;
+    Device targetDevice = devicesList.get(newPosition);
+    int currentOrder = currentDevice.order;
+    currentDevice.order = targetDevice.order;
+    targetDevice.order = currentOrder;
+    AppData.dbHelper.update(currentDevice);
+    AppData.dbHelper.update(targetDevice);
     queryDevices();
     notifyDataSetChanged();
   }

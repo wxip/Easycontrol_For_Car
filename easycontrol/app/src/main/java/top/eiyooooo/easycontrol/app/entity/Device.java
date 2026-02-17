@@ -20,6 +20,7 @@ public class Device {
   public boolean connectOnStart;
   public boolean clipboardSync;
   public boolean nightModeSync;
+  public int order;
   public int small_p_p_x;
   public int small_p_p_y;
   public int small_p_p_width;
@@ -64,6 +65,7 @@ public class Device {
                 boolean connectOnStart,
                 boolean clipboardSync,
                 boolean nightModeSync,
+                int order,
                 int small_p_p_x, int small_p_p_y, int small_p_p_width, int small_p_p_height,
                 int small_p_l_x, int small_p_l_y, int small_p_l_width, int small_p_l_height,
                 int small_l_p_x, int small_l_p_y, int small_l_p_width, int small_l_p_height,
@@ -86,6 +88,7 @@ public class Device {
     this.connectOnStart = connectOnStart;
     this.clipboardSync = clipboardSync;
     this.nightModeSync = nightModeSync;
+    this.order = order;
     this.small_p_p_x = small_p_p_x;
     this.small_p_p_y = small_p_p_y;
     this.small_p_p_width = small_p_p_width;
@@ -129,6 +132,7 @@ public class Device {
     target.connectOnStart = source.connectOnStart;
     target.clipboardSync = source.clipboardSync;
     target.nightModeSync = source.nightModeSync;
+    target.order = source.order;
     target.small_p_p_x = source.small_p_p_x;
     target.small_p_p_y = source.small_p_p_y;
     target.small_p_p_width = source.small_p_p_width;
@@ -153,7 +157,7 @@ public class Device {
   }
 
   public static Device getDefaultDevice(String uuid, int type) {
-    return new Device(uuid, type, uuid, "", "", AppData.setting.getDefaultIsAudio(), AppData.setting.getDefaultMaxSize(), AppData.setting.getDefaultMaxFps(), AppData.setting.getDefaultMaxVideoBit(), AppData.setting.getDefaultSetResolution(), AppData.setting.getDefaultFull(), AppData.setting.getDefaultUseH265(), AppData.setting.getDefaultUseOpus(), false, AppData.setting.getDefaultClipboardSync(), AppData.setting.getDefaultNightModeSync(), SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT,MINI_Y);
+    return new Device(uuid, type, uuid, "", "", AppData.setting.getDefaultIsAudio(), AppData.setting.getDefaultMaxSize(), AppData.setting.getDefaultMaxFps(), AppData.setting.getDefaultMaxVideoBit(), AppData.setting.getDefaultSetResolution(), AppData.setting.getDefaultFull(), AppData.setting.getDefaultUseH265(), AppData.setting.getDefaultUseOpus(), false, AppData.setting.getDefaultClipboardSync(), AppData.setting.getDefaultNightModeSync(), 0, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT, SMALL_X, SMALL_Y, SMALL_WIDTH, SMALL_HEIGHT,MINI_Y);
   }
 
   public boolean isNormalDevice() {
