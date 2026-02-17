@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
 
   private void startApp() {
     // 设置设备列表适配器、广播接收器
-    deviceListAdapter = new DeviceListAdapter(this, mainActivity.devicesList);
+    deviceListAdapter = new DeviceListAdapter(this);
     mainActivity.devicesList.setAdapter(deviceListAdapter);
     AppData.myBroadcastReceiver.setDeviceListAdapter(deviceListAdapter);
     connectHelper = new ConnectHelper(this);

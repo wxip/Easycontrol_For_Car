@@ -33,12 +33,15 @@
     android:textSize="@dimen/largeFont"
     tools:ignore="HardcodedText" />
 
-  <ImageView
-    android:id="@+id/device_expand"
-    android:layout_width="24dp"
-    android:layout_height="24dp"
-    android:rotation="180"
-    android:src="@drawable/chevron_left"
-    android:tint="@color/onCardBackground" />
+  <ImageButton
+    android:id="@+id/device_start"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:background="@drawable/background_cron_stroke"
+    android:backgroundTint="@color/alert"
+    android:src="@drawable/play"
+    android:scaleType="centerInside"
+    android:padding="8dp"
+    android:contentDescription="@string/start_display_mirroring" />
 
 </LinearLayout>
