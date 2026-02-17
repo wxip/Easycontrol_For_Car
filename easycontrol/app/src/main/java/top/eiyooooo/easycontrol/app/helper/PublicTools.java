@@ -333,21 +333,6 @@ public class PublicTools {
       deviceListAdapter.update();
       dialog.cancel();
     });
-    itemAddDeviceBinding.copyDevice.setOnClickListener(v -> {
-      Device newDevice = Device.getDefaultDevice(UUID.randomUUID().toString(), device.type);
-      Device.copyDevice(device, newDevice);
-      ArrayList<Device> allDevices = AppData.dbHelper.getAll();
-      int maxOrder = 0;
-      for (Device d : allDevices) {
-        if (d.type == newDevice.type && d.order > maxOrder) {
-          maxOrder = d.order;
-        }
-      }
-      newDevice.order = maxOrder + 1;
-      AppData.dbHelper.insert(newDevice);
-      deviceListAdapter.update();
-      Toast.makeText(context, context.getString(R.string.add_device_copy_device_success), Toast.LENGTH_SHORT).show();
-    });
     return dialog;
   }
 

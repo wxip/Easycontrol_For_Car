@@ -16,6 +16,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -223,6 +224,21 @@ public class DeviceListAdapter extends BaseAdapter {
       }
       update();
       dialog.cancel();
+    });
+    itemSetDeviceBinding.buttonCopy.setOnClickListener(v -> {
+      Device newDevice = Device.getDefaultDevice(UUID.randomUUID().toString(), device.type);
+      Device.copyDevice(device, newDevice);
+      ArrayList<Device> allDevices = AppData.dbHelper.getAll();
+      int maxOrder = 0;
+      for (Device d : allDevices) {
+        if (d.type == newDevice.type && d.order > maxOrder) {
+          maxOrder = d.order;
+        }
+      }
+      newDevice.order = maxOrder + 1;
+      AppData.dbHelper.insert(newDevice);
+      update();
+      Toast.makeText(context, context.getString(R.string.set_device_copy_device_success), Toast.LENGTH_SHORT).show();
     });
     dialog.show();
   }
